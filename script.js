@@ -65,3 +65,60 @@ function calculateAndDisplayRoute(origin, destination) {
         }
     });
 }
+
+function calculateTripCost(distanceInMeters) {
+    // Precio fijo de la bajada de bandera
+    var bajadaDeBanderaPrice = 320;
+
+    // Precio por metro recorrido
+    var pricePerMeter = 0.36;
+
+    // Calcular el costo total del viaje
+    var totalCost = bajadaDeBanderaPrice + (distanceInMeters * pricePerMeter);
+
+    return totalCost;
+}
+
+
+function calculateAndDisplayRoute(origin, destination) {
+    directionsService.route({
+        origin: origin,
+        destination: destination,
+        travelMode: 'DRIVING'
+    }, function (response, status) {
+        if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+            var route = response.routes[0];
+            var distance = 0;
+
+            for (var i = 0; i < route.legs.length; i++) {
+                distance += route.legs[i].distance.value;
+            }
+
+            // Convertir la distancia a metros
+            var distanceInMeters = distance;
+
+            // Convertir la distancia a kilómetros si es mayor o igual a 1000 metros
+            var distanceTextContent;
+            if (distanceInMeters < 1000) {
+                distanceTextContent = distanceInMeters + ' metros';
+            } else {
+                var distanceInKilometers = (distanceInMeters / 1000).toFixed(2);
+                distanceTextContent = distanceInKilometers + ' kilómetros';
+            }
+
+            // Mostrar la distancia en pantalla
+            var distanceText = document.getElementById('distance');
+            distanceText.textContent = 'Distancia: ' + distanceTextContent;
+
+            // Calcular el costo del viaje
+            var tripCost = calculateTripCost(distanceInMeters);
+
+            // Mostrar el costo en pantalla
+            var costText = document.getElementById('cost');
+            costText.textContent = 'Costo del viaje: $' + tripCost.toFixed(2);
+        } else {
+            alert('No se pudo calcular la ruta: ' + status);
+        }
+    });
+}
